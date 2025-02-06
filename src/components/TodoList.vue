@@ -8,25 +8,37 @@ interface Task {
   createdAt: number;
   isEditable: boolean;
   isUrgent: boolean;
+  category: string;
 }
 
 const tasks = ref<Task[]>([]);
+const categories = ["Holiday", "Work", "House work"];
+const selectedCategory = ref("");
+const filteredCategory = ref("Show all");
+const filteredResults = ref(tasks);
 
-onMounted(() => {
+const tasksFromStorage = () => {
   const storedTasks = localStorage.getItem("tasks");
   if (storedTasks) {
-    tasks.value = JSON.parse(storedTasks);
+    return JSON.parse(storedTasks);
   }
+  return;
+};
+
+onMounted(() => {
+  tasks.value = tasksFromStorage();
 });
 
-const addTask = (description: string) => {
+const addTask = (description: string, category: string) => {
   const newTask: Task = {
     description,
+    category: selectedCategory.value,
     status: "outstanding",
     createdAt: Date.now(),
     isEditable: false,
     isUrgent: false,
   };
+
   tasks.value.push(newTask);
   tasks.value.sort((a, b) => b.createdAt - a.createdAt);
   localStorage.setItem("tasks", JSON.stringify(tasks.value));
@@ -34,11 +46,15 @@ const addTask = (description: string) => {
 
 const markAsUrgent = (task: Task) => {
   task.isUrgent = true;
-  localStorage.setItem("tasks", JSON.stringify(tasks.value));
 };
 
 const changeStatus = (task: Task, newStatus: string) => {
   task.status = newStatus;
+  localStorage.setItem("tasks", JSON.stringify(tasks.value));
+};
+
+const changeCategory = (task: Task, newCatgeory: string) => {
+  task.category = newCatgeory;
   localStorage.setItem("tasks", JSON.stringify(tasks.value));
 };
 
@@ -52,10 +68,24 @@ const deleteTask = (task: Task) => {
   localStorage.setItem("tasks", JSON.stringify(tasks.value));
 };
 
-const saveTask = (task: Task, newDescription: string) => {
+const saveTask = (task: Task, newDescription: string, newCategory: string) => {
+  console.log("saveTask: ", newDescription, newCategory);
   task.description = newDescription;
+  task.category = newCategory;
   task.isEditable = false;
   localStorage.setItem("tasks", JSON.stringify(tasks.value));
+};
+
+const filterCategoryHandler = () => {
+  console.log("filterCategoryHandler");
+  filteredResults.value = tasksFromStorage()?.filter(
+    (t) => t.category === filteredCategory.value
+  );
+};
+
+const filterCategoryResetHandler = () => {
+  filteredResults.value = tasksFromStorage();
+  filteredCategory.value = "Show all";
 };
 </script>
 
@@ -65,26 +95,64 @@ const saveTask = (task: Task, newDescription: string) => {
       <!-- Task form -->
       <div class="bg-base-300 rounded-md">
         <form
-          @submit.prevent="addTask($event.target[0].value)"
+          @submit.prevent="addTask($event.target[0].value, $event.target)"
           class="flex justify-center items-center gap-2 p-8"
         >
           <input
             type="text"
             placeholder="Task description"
-            class="grow input input-lg input-bordered"
+            class="grow input input-bordered"
           />
-          <button type="submit" class="btn btn-lg btn-accent">Submit</button>
+          <select
+            v-model="selectedCategory"
+            as="select"
+            class="select w-full max-w-xs"
+          >
+            <option disabled selected value="">Category</option>
+            <option v-for="category in categories" :value="category">
+              {{ category }}
+            </option>
+          </select>
+          <button type="submit" class="btn btn-accent">Submit</button>
         </form>
+      </div>
+      <div class="bg-base-300 rounded-md px-8 py-4 flex gap-4 items-center">
+        Filter by category:
+        <select
+          v-model="filteredCategory"
+          as="select"
+          class="select w-full max-w-xs"
+          v-on:change="filterCategoryHandler"
+        >
+          <option disabled selected value="Show all">Show all</option>
+          <option v-for="category in categories" :value="category">
+            {{ category }}
+          </option>
+        </select>
+        <button
+          class="btn btn-square_ btn-neutral"
+          v-on:click="filterCategoryResetHandler"
+        >
+          Reset filter
+        </button>
       </div>
       <!-- Task list -->
       <ul class="bg-base-300 rounded-md flex flex-col gap-2">
+        <li
+          v-if="filteredResults.length === 0"
+          class="p-4 text-center opacity-50"
+        >
+          No tasks found.
+        </li>
         <!-- Task item -->
-        <li v-for="task in tasks" :key="task">
+        <li v-for="task in filteredResults" :key="task">
           <ListItem
             :task="task"
+            :categories="categories"
             :markAsUrgent="markAsUrgent"
             :editTask="editTask"
             :changeStatus="changeStatus"
+            :changeCategory="changeCategory"
             :deleteTask="deleteTask"
             :saveTask="saveTask"
           />
