@@ -1,15 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import ListItem from "./TodoList.Item.vue";
-
-interface Task {
-  description: string;
-  status: string;
-  createdAt: number;
-  isEditable: boolean;
-  isUrgent: boolean;
-  category: string;
-}
+import type { Task } from './types';
 
 const tasks = ref<Task[]>([]);
 const categories = ["Holiday", "Work", "House work"];
@@ -29,7 +21,7 @@ onMounted(() => {
   tasks.value = tasksFromStorage();
 });
 
-const addTask = (description: string, category: string) => {
+const addTask = (description: string) => {
   const newTask: Task = {
     description,
     category: selectedCategory.value,
@@ -68,10 +60,10 @@ const deleteTask = (task: Task) => {
   localStorage.setItem("tasks", JSON.stringify(tasks.value));
 };
 
-const saveTask = (task: Task, newDescription: string, newCategory: string) => {
+const saveTask = (task: Task, newDescription: string, newCategory?: string) => {
   console.log("saveTask: ", newDescription, newCategory);
   task.description = newDescription;
-  task.category = newCategory;
+  task.category = newCategory || '';
   task.isEditable = false;
   localStorage.setItem("tasks", JSON.stringify(tasks.value));
 };
@@ -79,7 +71,7 @@ const saveTask = (task: Task, newDescription: string, newCategory: string) => {
 const filterCategoryHandler = () => {
   console.log("filterCategoryHandler");
   filteredResults.value = tasksFromStorage()?.filter(
-    (t) => t.category === filteredCategory.value
+    (t: Task) => t.category === filteredCategory.value
   );
 };
 
@@ -95,7 +87,7 @@ const filterCategoryResetHandler = () => {
       <!-- Task form -->
       <div class="bg-base-300 rounded-md">
         <form
-          @submit.prevent="addTask($event.target[0].value, $event.target)"
+          @submit.prevent="addTask(($event.target as HTMLInputElement).value)"
           class="flex justify-center items-center gap-2 p-8"
         >
           <input
@@ -145,7 +137,7 @@ const filterCategoryResetHandler = () => {
           No tasks found.
         </li>
         <!-- Task item -->
-        <li v-for="task in filteredResults" :key="task">
+        <li v-for="task in filteredResults" :key="task.description">
           <ListItem
             :task="task"
             :categories="categories"

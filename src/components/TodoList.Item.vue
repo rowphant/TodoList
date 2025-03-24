@@ -1,15 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from "vue";
-
-interface Task {
-  description: string;
-  status: string;
-  createdAt: number;
-  isEditable: boolean;
-  isUrgent: boolean;
-  categories: string[];
-  category: string;
-}
+import { ref, onMounted, onUnmounted } from "vue";
+import type { Task } from './types';
 
 const props = defineProps<{
   task: Task;
@@ -23,7 +14,7 @@ const props = defineProps<{
 }>();
 
 const secondsToUrgency = 60;
-const intervalId = ref<number | null>(null);
+const intervalId = ref<number | undefined>(undefined);
 const intervalIndex = ref(0);
 const description = ref(props.task.description);
 const category = ref(props.task.category);
@@ -64,14 +55,14 @@ onUnmounted(() => {
   }
 });
 
-const changeStatusHandler = (task, status) => {
+const changeStatusHandler = (task: Task, status: string) => {
   task.isUrgent && window.clearInterval(intervalId.value);
   props.changeStatus(task, status);
 };
 
 const submitHandler = () => {
   console.log(props.task, description.value, category.value);
-  props.saveTask(props.task, description.value, category.value);
+  props.saveTask(props.task, description.value);
 };
 </script>
 
@@ -127,7 +118,7 @@ const submitHandler = () => {
         </form>
         <!-- Task Urgency -->
         <div v-if="task.status === 'outstanding'">
-          <div :key="tasks" v-if="task.isUrgent" class="text-error">
+          <div v-if="task.isUrgent" class="text-error">
             Urgent!
           </div>
           <div v-else>
