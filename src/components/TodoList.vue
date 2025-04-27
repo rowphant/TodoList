@@ -23,7 +23,6 @@ onMounted(() => {
 });
 
 const addTask = (description: string) => {
-  console.log("description", description);
   const newTask: Task = {
     description,
     category: selectedCategory.value,
@@ -89,7 +88,7 @@ const filterCategoryResetHandler = () => {
       <!-- Task form -->
       <div class="bg-base-300 rounded-md">
         <form
-          @submit.prevent="addTask(descriptionInput.value)"
+          @submit.prevent="descriptionInput && addTask(descriptionInput.value)"
           class="flex justify-center items-center gap-2 p-8"
         >
           <input
