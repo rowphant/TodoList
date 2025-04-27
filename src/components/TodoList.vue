@@ -124,7 +124,7 @@ const filterCategoryResetHandler = () => {
           </option>
         </select>
         <button
-          class="btn btn-square_ btn-neutral"
+          class="btn btn-neutral"
           v-on:click="filterCategoryResetHandler"
         >
           Reset filter
@@ -133,7 +133,7 @@ const filterCategoryResetHandler = () => {
       <!-- Task list -->
       <ul class="bg-base-300 rounded-md flex flex-col gap-2">
         <li
-          v-if="filteredResults.length === 0"
+          v-if="filteredResults?.length === 0"
           class="p-4 text-center opacity-50"
         >
           No tasks found.
