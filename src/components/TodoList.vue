@@ -32,8 +32,8 @@ const addTask = (description: string) => {
     isUrgent: false,
   };
 
-  tasks.value.push(newTask);
-  tasks.value.sort((a, b) => b.createdAt - a.createdAt);
+  tasks.value?.push(newTask);
+  tasks.value?.sort((a, b) => b.createdAt - a.createdAt);
   localStorage.setItem("tasks", JSON.stringify(tasks.value));
 };
 
