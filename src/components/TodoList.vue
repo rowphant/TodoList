@@ -124,7 +124,7 @@ const filterCategoryResetHandler = () => {
           </option>
         </select>
         <button
-          class="btn btn-neutral"
+          class="btn btn-square_ btn-neutral"
           v-on:click="filterCategoryResetHandler"
         >
           Reset filter
@@ -133,7 +133,7 @@ const filterCategoryResetHandler = () => {
       <!-- Task list -->
       <ul class="bg-base-300 rounded-md flex flex-col gap-2">
         <li
-          v-if="filteredResults?.length === 0"
+          v-if="filteredResults.length === 0"
           class="p-4 text-center opacity-50"
         >
           No tasks found.
@@ -157,13 +157,13 @@ const filterCategoryResetHandler = () => {
       >
         <div class="text-sm bg-base-300 p-2 rounded-md">
           Outstanding:
-          {{ tasks?.filter((t) => t.status === "outstanding").length }}
+          {{ tasks?.filter((t) => t?.status === "outstanding")?.length }}
         </div>
         <div class="text-sm bg-base-300 p-2 rounded-md">
-          Completed: {{ tasks?.filter((t) => t.status === "completed").length }}
+          Completed: {{ tasks?.filter((t) => t?.status === "completed")?.length }}
         </div>
         <div class="text-sm bg-base-300 p-2 rounded-md">
-          Urgent: {{ tasks?.filter((t) => t.isUrgent).length }}
+          Urgent: {{ tasks?.filter((t) => t?.isUrgent)?.length }}
         </div>
       </div>
     </div>
