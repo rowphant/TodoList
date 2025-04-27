@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import ListItem from "./TodoList.Item.vue";
-import type { Task } from './types';
+import type { Task } from "./types";
 
 const tasks = ref<Task[]>([]);
 const categories = ["Holiday", "Work", "House work"];
 const selectedCategory = ref("");
 const filteredCategory = ref("Show all");
 const filteredResults = ref(tasks);
+const descriptionInput = ref<HTMLInputElement | null>(null);
 
 const tasksFromStorage = () => {
   const storedTasks = localStorage.getItem("tasks");
@@ -22,6 +23,7 @@ onMounted(() => {
 });
 
 const addTask = (description: string) => {
+  console.log("description", description);
   const newTask: Task = {
     description,
     category: selectedCategory.value,
@@ -63,7 +65,7 @@ const deleteTask = (task: Task) => {
 const saveTask = (task: Task, newDescription: string, newCategory?: string) => {
   console.log("saveTask: ", newDescription, newCategory);
   task.description = newDescription;
-  task.category = newCategory || '';
+  task.category = newCategory || "";
   task.isEditable = false;
   localStorage.setItem("tasks", JSON.stringify(tasks.value));
 };
@@ -87,13 +89,14 @@ const filterCategoryResetHandler = () => {
       <!-- Task form -->
       <div class="bg-base-300 rounded-md">
         <form
-          @submit.prevent="addTask(($event.target as HTMLInputElement).value)"
+          @submit.prevent="addTask(descriptionInput.value)"
           class="flex justify-center items-center gap-2 p-8"
         >
           <input
             type="text"
             placeholder="Task description"
             class="grow input input-bordered"
+            ref="descriptionInput"
           />
           <select
             v-model="selectedCategory"
